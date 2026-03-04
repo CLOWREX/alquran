@@ -63,7 +63,7 @@ export default function Sidebar({ onSelect, selectedNo }) {
                   <div className="info">
                     <div className="baris-atas">
                       <span className="latin">{s.namaLatin}</span>
-                      <span className="arab-nama" style={{ fontFamily:'Amiri,serif' }}>{s.nama}</span>
+                      <span className="arab-nama" style={{ fontFamily:'Amiri, serif' }}>{s.nama}</span>
                     </div>
                     <div className="baris-bawah">
                       {s.arti} · {s.jumlahAyat} ayat · {s.tempatTurun}

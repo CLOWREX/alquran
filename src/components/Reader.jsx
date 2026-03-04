@@ -3,23 +3,21 @@ import './Reader.css'
 
 const API = 'https://equran.id/api/v2'
 
-// 6 qari dari equran.id v2
 const QARI = [
-  { key: 'Abdullah Al-Juhany',        label: 'Abdullah Al-Juhany' },
-  { key: 'Abdul Muhsin Al-Qasim',     label: 'Abdul Muhsin Al-Qasim' },
-  { key: 'Abdurrahman As-Sudais',     label: 'Abdurrahman As-Sudais' },
-  { key: 'Ibrahim Al-Dossari',        label: 'Ibrahim Al-Dossari' },
-  { key: 'Misyari Rasyid Al-Afasy',   label: 'Misyari Alafasy' },
-  { key: 'Yasser Al-Dosari',          label: 'Yasser Al-Dosari' },
+  { key: '01', label: 'Abdullah Al-Juhany' },
+  { key: '02', label: 'Abdul Muhsin Al-Qasim' },
+  { key: '03', label: 'Abdurrahman As-Sudais' },
+  { key: '04', label: 'Ibrahim Al-Dossari' },
+  { key: '05', label: 'Misyari Alafasy' },
+  { key: '06', label: 'Yasser Al-Dosari' },
 ]
 
 export default function Reader({ nomorSurat }) {
   const [data, setData] = useState(null)
   const [loading, setLoading] = useState(true)
-  const [qari, setQari] = useState(QARI[4].key)         // default Alafasy
+  const [qari, setQari] = useState('05')
   const [terjemahan, setTerjemahan] = useState(true)
   const [ukuran, setUkuran] = useState(26)
-  const [mainAudio, setMainAudio] = useState(null)       // url audio surat penuh
   const [playingAyah, setPlayingAyah] = useState(null)
   const audioRef = useRef(null)
 
@@ -33,13 +31,6 @@ export default function Reader({ nomorSurat }) {
       .catch(() => setLoading(false))
   }, [nomorSurat])
 
-  // Ambil url audio surat penuh sesuai qari yang dipilih
-  useEffect(() => {
-    if (!data) return
-    const audioSurat = data.audioFull?.[qari]
-    setMainAudio(audioSurat || null)
-  }, [data, qari])
-
   function stopAudio() {
     if (audioRef.current) {
       audioRef.current.pause()
@@ -51,8 +42,6 @@ export default function Reader({ nomorSurat }) {
   function putarAyah(ayah) {
     stopAudio()
     if (playingAyah === ayah.nomorAyat) return
-
-    // audio per ayat dari field audio[qari]
     const url = ayah.audio?.[qari]
     if (!url) return
     const audio = new Audio(url)
@@ -65,8 +54,9 @@ export default function Reader({ nomorSurat }) {
 
   function putarSurat() {
     stopAudio()
-    if (!mainAudio) return
-    const audio = new Audio(mainAudio)
+    const url = data?.audioFull?.[qari]
+    if (!url) return
+    const audio = new Audio(url)
     audioRef.current = audio
     setPlayingAyah('full')
     audio.play().catch(() => setPlayingAyah(null))
@@ -97,25 +87,23 @@ export default function Reader({ nomorSurat }) {
           >
             🇮🇩 Terjemahan
           </button>
-          {mainAudio && (
-            <button
-              className={playingAyah === 'full' ? 'aktif' : ''}
-              onClick={playingAyah === 'full' ? stopAudio : putarSurat}
-            >
-              {playingAyah === 'full' ? '⏹ Stop' : '▶ Putar Surah'}
-            </button>
-          )}
+          <button
+            className={playingAyah === 'full' ? 'aktif' : ''}
+            onClick={playingAyah === 'full' ? stopAudio : putarSurat}
+          >
+            {playingAyah === 'full' ? '⏹ Stop' : '▶ Putar Surah'}
+          </button>
         </div>
       </div>
 
       {/* Header surah */}
       <div className="header-surah">
-        <div className="nama-arab" style={{ fontFamily: 'Amiri,serif' }}>{data.nama}</div>
+        <div className="nama-arab" style={{ fontFamily: 'Amiri, serif' }}>{data.nama}</div>
         <div className="nama-latin">{data.namaLatin}</div>
         <div className="arti-surah">{data.arti}</div>
         <div className="meta-surah">{data.tempatTurun} · {data.jumlahAyat} Ayat</div>
         {tampilBasmallah && (
-          <div className="basmallah" style={{ fontFamily: 'Amiri,serif' }}>
+          <div className="basmallah" style={{ fontFamily: 'Amiri, serif' }}>
             بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ
           </div>
         )}
@@ -134,13 +122,10 @@ export default function Reader({ nomorSurat }) {
                 {playingAyah === ayah.nomorAyat ? '⏸' : '▶'}
               </button>
             </div>
-
             <div className="teks-arab" style={{ fontSize: ukuran }}>
               {ayah.teksArab}
             </div>
-
             <div className="teks-latin">{ayah.teksLatin}</div>
-
             {terjemahan && (
               <div className="teks-terjemahan">{ayah.teksIndonesia}</div>
             )}
